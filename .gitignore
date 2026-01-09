@@ -1,0 +1,9 @@
+node_modules/
+# 排除 Unity 自動生成的巨大快取
+AgentKnowledgeTest/Library/
+AgentKnowledgeTest/Temp/
+AgentKnowledgeTest/Obj/
+AgentKnowledgeTest/Logs/
+AgentKnowledgeTest/UserSettings/
+# 排除超過 100MB 的字體檔 (這是你報錯的主因)
+AgentKnowledgeTest/Assets/Fonts/
