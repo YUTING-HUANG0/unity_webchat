@@ -5,45 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI 知識問答助手</title>
     <style>
-        :root { --primary: #007AFF; --bg: #000000; }
+        :root { --primary: #007AFF; --bg: #1a1a1a; --glass: rgba(255, 255, 255, 0.9); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); }
         
-        /* Unity 畫布置底：確保聊天框浮在上面 */
+        /* Unity 畫布置底 */
         #unity-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        #unity-canvas { width: 100%; height: 100%; background: #242424 !important; }
+        #unity-canvas { width: 100%; height: 100%; background: transparent !important; }
 
-        /* UI 層次：直接強制開啟聊天介面 */
+        /* 現代化 UI 層次 */
         .app-shell { position: relative; z-index: 10; display: flex; flex-direction: column; width: 100%; height: 100vh; pointer-events: none; }
         
         header { 
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); color: white;
-            padding: 15px; text-align: center; font-weight: bold; pointer-events: auto;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(20px); color: white;
+            padding: 15px; text-align: center; font-weight: 600; font-size: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); pointer-events: auto;
         }
 
         #chat-window { 
-            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; 
-            pointer-events: auto; background: rgba(0,0,0,0.2);
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; 
+            pointer-events: auto; scroll-behavior: smooth;
         }
 
-        /* 訊息氣泡：現代感設計 */
-        .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.4; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* 訊息氣泡 */
+        .message { max-width: 75%; padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
         .user-message { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-        .bot-message { align-self: flex-start; background: rgba(255,255,255,0.95); color: #1c1c1e; border-bottom-left-radius: 4px; }
+        .bot-message { align-self: flex-start; background: var(--glass); color: #1c1c1e; border-bottom-left-radius: 4px; }
 
-        /* 底部輸入欄：強制置底且不遮擋 */
-        .bottom-bar { 
-            background: rgba(255, 255, 255, 0.98); padding: 15px 20px; display: flex; gap: 10px; align-items: center;
-            pointer-events: auto; border-top: 1px solid rgba(0,0,0,0.1);
+        /* 底部輸入區域 */
+        .input-bar { 
+            background: var(--glass); backdrop-filter: blur(20px); 
+            padding: 15px 20px; display: flex; align-items: center; gap: 12px; 
+            border-top: 1px solid rgba(0,0,0,0.1); pointer-events: auto;
         }
 
-        input { flex: 1; padding: 12px 18px; border: 1px solid #C7C7CC; border-radius: 25px; font-size: 16px; outline: none; }
-        .btn { border: none; border-radius: 20px; font-weight: bold; cursor: pointer; padding: 10px 20px; }
-        .btn-send { background: var(--primary); color: white; }
-        .btn-clear { background: #E5E5EA; color: #FF3B30; padding: 10px 15px; font-size: 14px; }
+        input { 
+            flex: 1; padding: 12px 18px; border: 1px solid #C7C7CC; border-radius: 25px; 
+            outline: none; font-size: 16px; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
 
-        /* 移除原先卡住的載入遮罩 */
-        #loading-overlay { display: none !important; }
+        .btn { border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-send { background: var(--primary); color: white; padding: 10px 20px; }
+        .btn-clear { background: #E5E5EA; color: #FF3B30; padding: 10px 15px; }
+
+        /* 移除卡住的載入條 */
+        #unity-loading-bar { display: none !important; }
     </style>
 </head>
 <body>
@@ -52,9 +58,9 @@
     <div class="app-shell">
         <header>AI 知識問答助手</header>
         <div id="chat-window">
-            <div class="message bot-message">系統已就緒，請輸入您的問題。</div>
+            <div class="message bot-message">系統已啟動，請隨時提問。</div>
         </div>
-        <div class="bottom-bar">
+        <div class="input-bar">
             <button class="btn btn-clear" onclick="triggerClear()">清空</button>
             <input type="text" id="user-input" placeholder="輸入問題..." onkeypress="if(event.key==='Enter') triggerSend()">
             <button class="btn btn-send" onclick="triggerSend()">傳送</button>
@@ -63,12 +69,14 @@
 
     <script>
         const canvas = document.querySelector("#unity-canvas");
-        // 核心檔案路徑修正
+        const chatWindow = document.getElementById("chat-window");
+
+        // 自動對接你目前的檔案名稱
         const config = {
-            dataUrl: "Build/knowledge-agent-api.data",
-            frameworkUrl: "Build/knowledge-agent-api.framework.js",
-            loaderUrl: "Build/knowledge-agent-api.loader.js",
-            codeUrl: "Build/knowledge-agent-api.wasm",
+            dataUrl: "Build/chatbot.data",
+            frameworkUrl: "Build/chatbot.framework.js",
+            loaderUrl: "Build/chatbot.loader.js",
+            codeUrl: "Build/chatbot.wasm",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "DefaultCompany",
             productName: "AgentKnowledgeTest",
@@ -85,18 +93,17 @@
 
         function triggerSend() {
             const input = document.getElementById("user-input");
-            const msg = input.value.trim();
-            if (msg && window.unityInstance) {
-                appendMessage(msg, 'user-message');
-                // 對接 Unity 的 _Managers 物件
-                window.unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', msg);
+            const val = input.value.trim();
+            if (val && window.unityInstance) {
+                appendMessage(val, 'user-message');
+                window.unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', val);
                 input.value = "";
             }
         }
 
         function triggerClear() {
             if (window.unityInstance) {
-                document.getElementById("chat-window").innerHTML = '<div class="message bot-message">對話已重設。</div>';
+                chatWindow.innerHTML = '<div class="message bot-message">對話已重設。</div>';
                 window.unityInstance.SendMessage('_Managers', 'ClearChat');
             }
         }
@@ -104,12 +111,11 @@
         window.onUnityMessage = (msg) => { appendMessage(msg, 'bot-message'); };
 
         function appendMessage(text, className) {
-            const win = document.getElementById("chat-window");
             const div = document.createElement("div");
             div.className = `message ${className}`;
             div.innerText = text;
-            win.appendChild(div);
-            win.scrollTop = win.scrollHeight;
+            chatWindow.appendChild(div);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
 </body>
