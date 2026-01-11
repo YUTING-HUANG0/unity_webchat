@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>AI Knowledge Agent | 極簡黑白灰版</title>
+    <style>
+        /* 基礎變數：黑白灰配色 */
+        :root {
+            --bg-pure: #000000;      /* 純黑背景 */
+            --panel-dark: #1a1a1a;  /* 深灰面板 */
+            --panel-light: #2d2d2d; /* 淺灰氣泡 */
+            --accent: #ffffff;      /* 純白強調 */
+            --text-main: #f0f0f0;   /* 主文字 */
+            --text-dim: #a0a0a0;    /* 次要文字 */
+        }
+
+        body, html {
+            padding: 0; margin: 0; height: 100vh; width: 100vw;
+            background-color: var(--bg-pure);
+            font-family: 'Inter', -apple-system, "Microsoft JhengHei", sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* Unity 畫布隱藏在最底層 */
+        #unity-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 1px !important; height: 1px !important;
+            opacity: 0; pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 主 UI 容器 */
+        #web-ui-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-pure);
+        }
+
+        /* 標題欄 */
+        #header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--panel-light);
+            letter-spacing: 2px;
+            font-weight: 300;
+            text-transform: uppercase;
+        }
+
+        /* 聊天視窗 */
+        #chat-window {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 850px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 訊息氣泡 */
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: 4px; /* 簡約方角 */
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .bot-msg {
+            align-self: flex-start;
+            background: var(--panel-dark);
+            border-left: 3px solid var(--accent);
+        }
+        .user-msg {
+            align-self: flex-end;
+            background: var(--panel-light);
+            text-align: right;
+        }
+
+        /* 預設問題按鈕 */
+        .suggestion-box {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .suggestion-btn {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            padding: 0.6rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .suggestion-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* 輸入區域 */
+        #input-area {
+            padding: 2rem;
+            background: var(--bg-pure);
+            border-top: 1px solid var(--panel-light);
+        }
+        .input-container {
+            max-width: 850px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+        }
+        input {
+            flex: 1;
+            background: var(--panel-dark);
+            border: 1px solid var(--panel-light);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            outline: none;
+            font-size: 1rem;
+        }
+        input:focus { border-color: var(--accent); }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            border: none;
+        }
+        #send-btn { background: var(--accent); color: black; }
+        #clear-btn { background: #333; color: white; }
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+
+        /* 滾動條美化 */
+        #chat-window::-webkit-scrollbar { width: 4px; }
+        #chat-window::-webkit-scrollbar-track { background: var(--bg-pure); }
+        #chat-window::-webkit-scrollbar-thumb { background: var(--panel-light); }
+    </style>
+</head>
+<body>
+
+    <canvas id="unity-canvas"></canvas>
+
+    <div id="web-ui-layer">
+        <div id="header">AI Knowledge Agent</div>
+        
+        <div id="chat-window" id="chatWindow">
+            <div class="message bot-msg">
+                系統已準備就緒。您可以點擊下方預設問題，或直接輸入。
+                <div class="suggestion-box">
+                    <button class="suggestion-btn" onclick="askSuggestion('什麼是生成式AI（Generative AI）？')">· 什麼是生成式AI（Generative AI）？</button>
+                    <button class="suggestion-btn" onclick="askSuggestion('TAM 的兩個核心構念是什麼？')">· TAM 的兩個核心構念是什麼？</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="input-area">
+            <div class="input-container">
+                <button id="clear-btn" class="btn" onclick="clearConversation()">CLEAR</button>
+                <input type="text" id="userInput" placeholder="輸入訊息..." onkeypress="if(event.keyCode==13) performSend()">
+                <button id="send-btn" class="btn" onclick="performSend()">SEND</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var unityInstance = null;
+        var canvas = document.querySelector("#unity-canvas");
+
+        var config = {
+            dataUrl: "Build/knowledge-agent-api.data",
+            frameworkUrl: "Build/knowledge-agent-api.framework.js",
+            codeUrl: "Build/knowledge-agent-api.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "DefaultCompany",
+            productName: "AgentKnowledgeTest",
+            productVersion: "1.0",
+        };
+
+        // 載入 Unity
+        var script = document.createElement("script");
+        script.src = "Build/knowledge-agent-api.loader.js";
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {}).then((instance) => {
+                unityInstance = instance;
+            }).catch((err) => { alert(err); });
+        };
+        document.body.appendChild(script);
+
+        // --- 核心邏輯 ---
+
+        function performSend() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text || !unityInstance) return;
+
+            appendMsg('user', text);
+            input.value = '';
+            
+            // 呼叫 Unity 內的邏輯物件 _Managers
+            unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
+        }
+
+        function askSuggestion(text) {
+            if (!unityInstance) return;
+            appendMsg('user', text);
+            unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
+        }
+
+        function clearConversation() {
+            if (confirm("確定要清空對話嗎？")) {
+                document.getElementById('chat-window').innerHTML = '';
+                if (unityInstance) unityInstance.SendMessage('_Managers', 'ClearChat');
+                location.reload(); // 徹底重置
+            }
+        }
+
+        function appendMsg(role, text) {
+            const win = document.getElementById('chat-window');
+            const div = document.createElement('div');
+            div.className = `message ${role}-msg`;
+            div.innerText = text;
+            win.appendChild(div);
+            win.scrollTop = win.scrollHeight;
+        }
+
+        // 接聽 Unity 回傳
+        window.dispatchAnswerToHTML = function(answer) {
+            appendMsg('bot', answer);
+        };
+
+        window.setTypingStatus = function(isTyping) {
+            document.getElementById('send-btn').disabled = (isTyping === 1);
+        };
+    </script>
+</body>
+</html>
