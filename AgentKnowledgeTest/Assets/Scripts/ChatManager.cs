@@ -204,6 +204,14 @@ public class ChatManager : MonoBehaviour
         if (chatScrollRect != null) StartCoroutine(ForceScrollToBottom());
     }
 
+    public void SetCaptureAllKeyboardInput(int capture)
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    // 設為 false 時，Unity 不會強佔鍵盤，HTML 的 input 就能正常打英文
+    UnityEngine.WebGLInput.captureAllKeyboardInput = (capture == 1);
+#endif
+    }
+
     private IEnumerator ForceScrollToBottom()
     {
         yield return new WaitForEndOfFrame();
