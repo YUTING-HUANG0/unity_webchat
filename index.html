@@ -5,26 +5,60 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>智能知識助手系統</title>
     <style>
-        :root { --bg-pure: #000; --panel-dark: #1a1a1a; --panel-light: #2d2d2d; --accent: #fff; --text-main: #f0f0f0; --text-dim: #a0a0a0; }
-        body, html { padding: 0; margin: 0; height: 100vh; width: 100vw; background: var(--bg-pure); font-family: "Microsoft JhengHei", sans-serif; color: var(--text-main); overflow: hidden; }
+        /* 定義三種色系配置 */
+        :root { 
+            /* 預設黑色風格 (default / dark) */
+            --bg-pure: #000; 
+            --panel-dark: #1a1a1a; 
+            --panel-light: #2d2d2d; 
+            --accent: #fff; 
+            --text-main: #f0f0f0; 
+            --text-dim: #a0a0a0; 
+            --btn-text: #000;
+        }
+
+        /* 深藍風格 (theme=blue) */
+        [data-theme='blue'] {
+            --bg-pure: #0a192f;
+            --panel-dark: #172a45;
+            --panel-light: #303c55;
+            --accent: #64ffda;
+            --text-main: #e6f1ff;
+            --text-dim: #8892b0;
+            --btn-text: #0a192f;
+        }
+
+        /* 明亮風格 (theme=light) */
+        [data-theme='light'] {
+            --bg-pure: #f5f5f5;
+            --panel-dark: #ffffff;
+            --panel-light: #e0e0e0;
+            --accent: #2196f3;
+            --text-main: #212121;
+            --text-dim: #666666;
+            --btn-text: #fff;
+        }
+
+        body, html { padding: 0; margin: 0; height: 100vh; width: 100vw; background: var(--bg-pure); font-family: "Microsoft JhengHei", sans-serif; color: var(--text-main); overflow: hidden; transition: background 0.3s ease; }
         
-        /* 保持畫布在畫面上但不可見，防止 Unity 停止運作 */
         #unity-canvas { position: absolute; top: 0; left: 0; width: 1px !important; height: 1px !important; opacity: 0; z-index: 1; }
 
         #web-ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; background: var(--bg-pure); }
         #header { padding: 1.5rem; text-align: center; border-bottom: 1px solid var(--panel-light); letter-spacing: 4px; font-weight: bold; }
         #chat-window { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 850px; margin: 0 auto; width: 100%; }
-        .message { max-width: 80%; padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.95rem; line-height: 1.6; }
+        .message { max-width: 80%; padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.95rem; line-height: 1.6; transition: background 0.3s ease; }
         .bot-msg { align-self: flex-start; background: var(--panel-dark); border-left: 3px solid var(--accent); }
         .user-msg { align-self: flex-end; background: var(--panel-light); }
-        .typing-msg { color: var(--text-dim); font-style: italic; display: none; }
         .suggestion-box { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .suggestion-btn { background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); padding: 0.6rem; text-align: left; cursor: pointer; font-size: 0.85rem; }
+        .suggestion-btn:hover { border-color: var(--accent); color: var(--accent); }
+        
         #input-area { padding: 2rem; background: var(--bg-pure); border-top: 1px solid var(--panel-light); }
         .input-container { max-width: 850px; margin: 0 auto; display: flex; gap: 1rem; }
-        input { flex: 1; background: var(--panel-dark); border: 1px solid var(--panel-light); color: white; padding: 0.8rem 1.2rem; outline: none; font-size: 1rem; }
-        .btn { padding: 0.8rem 1.5rem; cursor: pointer; font-weight: bold; border: none; }
-        #send-btn { background: var(--accent); color: black; }
+        input { flex: 1; background: var(--panel-dark); border: 1px solid var(--panel-light); color: var(--text-main); padding: 0.8rem 1.2rem; outline: none; font-size: 1rem; }
+        .btn { padding: 0.8rem 1.5rem; cursor: pointer; font-weight: bold; border: none; transition: opacity 0.2s; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #send-btn { background: var(--accent); color: var(--btn-text); }
         #clear-btn { background: #333; color: white; }
     </style>
 </head>
@@ -51,6 +85,17 @@
     </div>
 
     <script>
+        // --- 1. 主題控制邏輯 ---
+        function applyTheme() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const theme = urlParams.get('theme'); // 抓取 ?theme=...
+            if (theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        }
+        applyTheme(); // 立即執行
+
+        // --- 2. Unity 初始化 ---
         var unityInstance = null;
         var canvas = document.querySelector("#unity-canvas");
 
@@ -69,13 +114,12 @@
         script.onload = () => {
             createUnityInstance(canvas, config, (progress) => {}).then((instance) => {
                 unityInstance = instance;
-                // 啟動後立刻告訴 Unity 不要攔截鍵盤，解決英文輸入問題
                 instance.SendMessage('_Managers', 'SetCaptureAllKeyboardInput', 0);
             });
         };
         document.body.appendChild(script);
 
-        // 送出邏輯
+        // --- 3. 聊天邏輯 ---
         function performSend() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
@@ -120,7 +164,6 @@
                     typingDiv = document.createElement('div');
                     typingDiv.id = 'typing-indicator';
                     typingDiv.className = 'message bot-msg';
-                    typingDiv.style.color = '#a0a0a0';
                     typingDiv.innerText = '機器人正在思考...';
                     win.appendChild(typingDiv);
                 }
