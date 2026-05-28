@@ -1,8 +1,8 @@
-// server.js
-
-// 引入 Express 和 cors
+// 引入 Express、cors、fs 和 path
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 // 引入您的知識庫查詢函數
 // ⚠️ 注意：這裡假設您已經在 knowledge_lookup.js 檔案底部導出了 lookupKnowledge 函數
@@ -15,6 +15,40 @@ const PORT = 3000; // API 將運行在 3000 埠
 // 設定中介軟體 (Middleware)
 app.use(cors()); // 啟用 CORS，允許跨域請求
 app.use(express.json()); // 允許 Express 處理 JSON 格式的請求體
+
+// 提供預先壓縮的 .gz 檔案服務以加速載入時間
+app.get(/\.js$/, (req, res, next) => {
+    const gzPath = path.join(__dirname, req.path + '.gz');
+    if (req.header('Accept-Encoding')?.includes('gzip') && fs.existsSync(gzPath)) {
+        req.url = req.url + '.gz';
+        res.set('Content-Encoding', 'gzip');
+        res.set('Content-Type', 'application/javascript');
+    }
+    next();
+});
+
+app.get(/\.wasm$/, (req, res, next) => {
+    const gzPath = path.join(__dirname, req.path + '.gz');
+    if (req.header('Accept-Encoding')?.includes('gzip') && fs.existsSync(gzPath)) {
+        req.url = req.url + '.gz';
+        res.set('Content-Encoding', 'gzip');
+        res.set('Content-Type', 'application/wasm');
+    }
+    next();
+});
+
+app.get(/\.data$/, (req, res, next) => {
+    const gzPath = path.join(__dirname, req.path + '.gz');
+    if (req.header('Accept-Encoding')?.includes('gzip') && fs.existsSync(gzPath)) {
+        req.url = req.url + '.gz';
+        res.set('Content-Encoding', 'gzip');
+        res.set('Content-Type', 'application/octet-stream');
+    }
+    next();
+});
+
+// 提供靜態檔案服務，以便透過 http://localhost:3000/ 預覽 index.html，並避免 file:// 產生的 WebGL CORS 限制
+app.use(express.static(__dirname));
 
 // --- 核心 API 端點 ---
 

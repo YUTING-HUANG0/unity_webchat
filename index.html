@@ -243,30 +243,29 @@
         }
 
         #loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            background: var(--bg-pure);
+            height: 42px;
+            background: rgba(22, 36, 47, 0.95);
+            border-bottom: 1px solid var(--box-border);
             z-index: 100;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.5s;
+            gap: 12px;
+            transition: opacity 0.5s, height 0.5s;
+            flex-shrink: 0; /* 防止被 flex 壓縮 */
         }
 
         .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid var(--text-dim);
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--text-dim);
             border-bottom-color: var(--accent);
             border-radius: 50%;
             display: inline-block;
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
-            margin-bottom: 1rem;
         }
 
         @keyframes rotation {
@@ -281,19 +280,19 @@
 
         #loading-text {
             color: var(--accent);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 
 <body>
-    <div id="loading-overlay">
-        <span class="loader"></span>
-        <div id="loading-text">系統載入中... 0%</div>
-    </div>
     <canvas id="unity-canvas"></canvas>
     <div id="web-ui-layer">
+        <div id="loading-overlay">
+            <span class="loader"></span>
+            <div id="loading-text">3D 引擎載入中... 0% (已啟用極速 API 模式，您可以直接開始對話)</div>
+        </div>
         <div id="header-container">
             <div id="header" class="cyber-box">智能知識助手系統</div>
         </div>
@@ -326,6 +325,9 @@
         }
         applyTheme();
 
+        // 極速模式：立即啟用輸入介面，免去任何等待！
+        enableUI(true);
+
         var unityInstance = null;
         var canvas = document.querySelector("#unity-canvas");
         var config = {
@@ -343,20 +345,33 @@
         script.onload = () => {
             const loadingText = document.getElementById('loading-text');
             createUnityInstance(canvas, config, (progress) => {
-                loadingText.innerText = `系統載入中... ${Math.round(progress * 100)}%`;
+                loadingText.innerText = `3D 引擎載入中... ${Math.round(progress * 100)}% (已啟用極速 API 模式，您可以直接開始對話)`;
             }).then((instance) => {
                 unityInstance = instance;
                 instance.SendMessage('_Managers', 'SetCaptureAllKeyboardInput', 0);
                 setTimeout(() => {
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                        enableUI(true);
-                    }, 500);
+                    const overlay = document.getElementById('loading-overlay');
+                    if (overlay) {
+                        overlay.style.opacity = '0';
+                        overlay.style.height = '0';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 500);
+                    }
                 }, 500);
             }).catch((err) => {
-                loadingText.innerText = "載入失敗，請檢查網路連線或重新整理頁面。";
-                console.error(err);
+                console.error("Unity 引擎載入失敗，維持 API 模式運作:", err);
+                loadingText.innerText = "3D 引擎載入失敗，系統已自動維持極速 API 模式運作！";
+                setTimeout(() => {
+                    const overlay = document.getElementById('loading-overlay');
+                    if (overlay) {
+                        overlay.style.opacity = '0';
+                        overlay.style.height = '0';
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 500);
+                    }
+                }, 2000);
             });
         };
         document.body.appendChild(script);
@@ -374,32 +389,71 @@
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
-            if (!unityInstance) {
-                alert("系統初始化中，請稍候...");
-                return;
-            }
+
             appendMsg('user', text);
             input.value = '';
             showTyping(true);
-            // 使用 setTimeout(0) 確保「思考中」的 DOM 更新能先被瀏覽器渲染繪製
-            setTimeout(() => {
-                unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
-            }, 50);
+
+            if (unityInstance) {
+                // 如果 Unity 已就緒，透過 Unity 引擎處理
+                setTimeout(() => {
+                    unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
+                }, 50);
+            } else {
+                // 如果 Unity 還在載入，直接利用後端 API「秒開即用」！
+                fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('API 呼叫失敗');
+                    return res.json();
+                })
+                .then(data => {
+                    showTyping(false);
+                    appendMsg('bot', data.answer);
+                })
+                .catch(err => {
+                    showTyping(false);
+                    appendMsg('bot', '🤖 [系統連線不穩定，請稍後再試]');
+                    console.error(err);
+                });
+            }
         }
 
         document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') performSend(); });
 
         function askSuggestion(text) {
-            if (!unityInstance) {
-                alert("系統初始化中，請稍候...");
-                return;
-            }
             appendMsg('user', text);
             showTyping(true);
-            // 同樣確保 DOM 更新渲染
-            setTimeout(() => {
-                unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
-            }, 50);
+
+            if (unityInstance) {
+                // 如果 Unity 已就緒，透過 Unity 引擎處理
+                setTimeout(() => {
+                    unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
+                }, 50);
+            } else {
+                // 如果 Unity 還在載入，直接利用後端 API「秒開即用」！
+                fetch('/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('API 呼叫失敗');
+                    return res.json();
+                })
+                .then(data => {
+                    showTyping(false);
+                    appendMsg('bot', data.answer);
+                })
+                .catch(err => {
+                    showTyping(false);
+                    appendMsg('bot', '🤖 [系統連線不穩定，請稍後再試]');
+                    console.error(err);
+                });
+            }
         }
 
         function clearConversation() {
