@@ -78,7 +78,8 @@
             -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
             mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 70%);
             pointer-events: none;
-            display: none; 
+            display: none;
+            
         }
 
         .cyber-box {
@@ -133,7 +134,6 @@
 
         #main-content-container {
             display: flex;
-            flex-direction: row-reverse; 
             flex: 1;
             overflow: hidden;
             width: 100%;
@@ -145,14 +145,8 @@
         }
 
         #character-panel {
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: visible; 
-            box-sizing: border-box;
+            display: none;
+            
         }
 
         .character-wrapper {
@@ -161,7 +155,8 @@
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            overflow: visible; 
+            overflow: visible;
+            
             position: relative;
             padding: 1rem;
             box-sizing: border-box;
@@ -174,11 +169,13 @@
             filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.15));
             transition: all 0.3s ease;
             transform-origin: bottom center;
-            transform: scaleX(-1.2) scaleY(1.2); 
+            transform: scaleX(-1.2) scaleY(1.2);
+            
         }
 
         #character-img:hover {
-            transform: scaleX(-1.25) scaleY(1.25); 
+            transform: scaleX(-1.25) scaleY(1.25);
+            
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
         }
 
@@ -237,7 +234,8 @@
             position: absolute;
             left: -35%;
             top: -5%;
-            transform: scaleX(-1); 
+            transform: scaleX(-1);
+            
         }
 
         .user-msg {
@@ -323,9 +321,11 @@
             #main-content-container {
                 position: relative;
             }
+
             #character-panel {
                 position: absolute;
-                left: 2rem; 
+                left: 2rem;
+                
                 bottom: 2rem;
                 width: 280px;
                 height: auto;
@@ -334,6 +334,7 @@
                 opacity: 0.5;
                 pointer-events: none;
             }
+
             #chat-main-panel {
                 position: relative;
                 z-index: 2;
@@ -437,6 +438,83 @@
         }
 
         
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        #welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .welcome-character-wrapper {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 350px;
+        }
+
+        #welcome-character {
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+            animation: welcome-breath 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes welcome-breath {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.03);
+            }
+        }
+
+        .welcome-speech-bubble {
+            position: relative;
+            background: rgba(40, 40, 40, 0.9);
+            border: 1px solid var(--box-border);
+            border-radius: 12px;
+            padding: 1.2rem 2rem;
+            max-width: 500px;
+            text-align: center;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            min-height: 2.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 2px;
+        }
+
+        .welcome-speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent rgba(40, 40, 40, 0.9) transparent;
+        }
+
+        
         #character-img {
             opacity: 0;
             transition: opacity 0.15s ease;
@@ -445,10 +523,23 @@
         .avatar-img {
             opacity: 0; 
         }
+
+        #welcome-character {
+            opacity: 0;
+            transition: opacity 1s ease; 
+        }
     </style>
 </head>
 
 <body>
+    <div id="welcome-screen">
+        <div class="welcome-character-wrapper">
+            <img id="welcome-character" src="sherlock.png" alt="Sherlock Welcome" onload="removeCheckerboard(this)">
+        </div>
+        <div class="welcome-speech-bubble cyber-box">
+            <span id="welcome-text">系統載入中...</span>
+        </div>
+    </div>
     <canvas id="unity-canvas"></canvas>
     <div id="web-ui-layer">
         <div id="fade-overlay"></div>
@@ -482,7 +573,6 @@
             </div>
 
             
-            
             <div id="character-panel">
                 <div class="character-wrapper">
                     <img src="sherlock.png" alt="Sherlock Holmes" id="character-img" onload="removeCheckerboard(this)">
@@ -500,6 +590,10 @@
             
             if (img.dataset.transparentized === 'true') {
                 img.style.opacity = '1';
+                if (img.id === 'welcome-character' && window.startWelcomeDialogue) {
+                    window.startWelcomeDialogue();
+                    window.startWelcomeDialogue = null; 
+                }
                 return;
             }
 
@@ -508,9 +602,13 @@
                 img.dataset.transparentized = 'true';
                 img.src = cachedTransparentSherlock;
                 img.style.opacity = '1';
+                if (img.id === 'welcome-character' && window.startWelcomeDialogue) {
+                    window.startWelcomeDialogue();
+                    window.startWelcomeDialogue = null;
+                }
                 return;
             }
-            
+
             
             if (!img.complete || img.naturalWidth === 0) {
                 img.onload = () => removeCheckerboard(img);
@@ -551,7 +649,7 @@
                 
                 function isBackground(r, g, b, a) {
                     if (a < 10) return true;
-                    
+
                     const maxVal = Math.max(r, g, b);
                     const minVal = Math.min(r, g, b);
                     const diff = maxVal - minVal;
@@ -614,6 +712,10 @@
                 console.error("Transparentization failed (possibly due to CORS in file:// protocol):", e);
             } finally {
                 img.style.opacity = '1'; 
+                if (img.id === 'welcome-character' && window.startWelcomeDialogue) {
+                    window.startWelcomeDialogue();
+                    window.startWelcomeDialogue = null; 
+                }
             }
         }
 
@@ -800,14 +902,14 @@
             const win = document.getElementById('chat-window');
             const div = document.createElement('div');
             div.className = `message ${role}-msg cyber-box`;
-            
+
             if (role === 'bot') {
                 const avatar = document.createElement('div');
                 avatar.className = 'avatar';
                 const avatarImg = document.createElement('img');
                 avatarImg.className = 'avatar-img';
                 avatarImg.src = 'sherlock.png';
-                avatarImg.onload = function() { removeCheckerboard(this); };
+                avatarImg.onload = function () { removeCheckerboard(this); };
                 avatar.appendChild(avatarImg);
                 const textDiv = document.createElement('div');
                 textDiv.className = 'bot-text';
@@ -817,7 +919,7 @@
             } else {
                 div.innerText = text;
             }
-            
+
             win.appendChild(div);
             win.scrollTop = win.scrollHeight;
         }
@@ -835,7 +937,7 @@
                     typingDiv = document.createElement('div');
                     typingDiv.id = 'typing-indicator';
                     typingDiv.className = 'message bot-msg cyber-box';
-                    
+
                     const avatar = document.createElement('div');
                     avatar.className = 'avatar';
                     const avatarImg = document.createElement('img');
@@ -846,7 +948,7 @@
                     const textDiv = document.createElement('div');
                     textDiv.className = 'bot-text';
                     textDiv.id = 'typing-text';
-                    
+
                     typingDiv.appendChild(avatar);
                     typingDiv.appendChild(textDiv);
                     win.appendChild(typingDiv);
@@ -893,6 +995,42 @@
             document.getElementById('send-btn').disabled = (isTyping === 1);
             showTyping(isTyping === 1);
         };
+
+        
+        (function () {
+            const welcomeTextEl = document.getElementById('welcome-text');
+            const welcomeScreenEl = document.getElementById('welcome-screen');
+            const sentences = [
+                "歡迎使用智能知識助手系統！",
+                "我是您的 AI 助理 Sherlock，很高興為您服務。",
+                "系統載入已就緒，請隨時向我提問吧！"
+            ];
+            let currentSentenceIdx = 0;
+
+            function showNextSentence() {
+                if (currentSentenceIdx < sentences.length) {
+                    welcomeTextEl.style.opacity = 0;
+                    setTimeout(() => {
+                        welcomeTextEl.innerText = sentences[currentSentenceIdx];
+                        welcomeTextEl.style.transition = 'opacity 0.5s ease';
+                        welcomeTextEl.style.opacity = 1;
+                        currentSentenceIdx++;
+                        
+                        setTimeout(showNextSentence, 1800);
+                    }, 100);
+                } else {
+                    
+                    setTimeout(() => {
+                        welcomeScreenEl.classList.add('hidden');
+                    }, 2100);
+                }
+            }
+
+            
+            window.startWelcomeDialogue = function() {
+                setTimeout(showNextSentence, 500); 
+            };
+        })();
     </script>
 </body>
 
