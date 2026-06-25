@@ -116,6 +116,7 @@
         }
         #main-content-container {
             display: flex;
+            flex-direction: row-reverse;
             flex: 1;
             overflow: hidden;
             width: 100%;
@@ -126,7 +127,14 @@
             gap: 2rem;
         }
         #character-panel {
-            display: none;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: visible;
+            box-sizing: border-box;
         }
         .character-wrapper {
             width: 100%;

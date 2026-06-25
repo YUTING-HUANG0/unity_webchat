@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -9,21 +8,15 @@
         :root {
             --bg-pure: #121212;
             --bg-radial: #242424;
-            --box-bg: rgba(40, 40, 40, 0.85);
-            
-            --box-border: rgba(120, 120, 120, 0.35);
-            
+            --box-bg: rgba(40, 40, 40, 0.85);            
+            --box-border: rgba(120, 120, 120, 0.35);            
             --corner-color: #b0b0b0;
-
-            --user-bg: rgba(65, 65, 65, 0.85);
-            
+            --user-bg: rgba(65, 65, 65, 0.85);            
             --user-border: rgba(160, 160, 160, 0.45);
-
             --text-main: #dcdcdc;
             --text-dim: #999999;
             --accent: #cccccc;
         }
-
         body,
         html {
             padding: 0;
@@ -35,14 +28,12 @@
             color: var(--text-main);
             overflow: hidden;
         }
-
         input,
         button,
         textarea,
         select {
             font-family: inherit;
         }
-
         #unity-canvas {
             position: absolute;
             top: 0;
@@ -52,7 +43,6 @@
             opacity: 0;
             z-index: 1;
         }
-
         #web-ui-layer {
             position: absolute;
             top: 0;
@@ -64,7 +54,6 @@
             flex-direction: column;
             background: rgba(0, 0, 0, 0.5);
         }
-
         #web-ui-layer::before {
             content: '';
             position: absolute;
@@ -80,14 +69,12 @@
             pointer-events: none;
             display: none; 
         }
-
         .cyber-box {
             position: relative;
             background: var(--box-bg);
             border: 1px solid var(--box-border);
             padding: 1.5rem;
         }
-
         .cyber-box::before {
             content: '';
             position: absolute;
@@ -106,14 +93,12 @@
                 linear-gradient(to left, var(--corner-color), var(--corner-color)) bottom right / 10px 2px no-repeat,
                 linear-gradient(to top, var(--corner-color), var(--corner-color)) bottom right / 2px 10px no-repeat;
         }
-
         #header-container {
             display: flex;
             justify-content: center;
             padding-top: 2rem;
             margin-bottom: 0.5rem;
         }
-
         #header {
             font-size: 1.5rem;
             letter-spacing: 4px;
@@ -123,14 +108,12 @@
             align-items: center;
             gap: 1rem;
         }
-
         #header-mini-img {
             width: 60px;
             height: 60px;
             object-fit: contain;
             filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.15));
         }
-
         #main-content-container {
             display: flex;
             flex-direction: row-reverse; 
@@ -143,7 +126,6 @@
             box-sizing: border-box;
             gap: 2rem;
         }
-
         #character-panel {
             width: 320px;
             display: flex;
@@ -154,7 +136,6 @@
             overflow: visible; 
             box-sizing: border-box;
         }
-
         .character-wrapper {
             width: 100%;
             height: 100%;
@@ -166,7 +147,6 @@
             padding: 1rem;
             box-sizing: border-box;
         }
-
         #character-img {
             max-width: 100%;
             max-height: 100%;
@@ -176,12 +156,10 @@
             transform-origin: bottom center;
             transform: scaleX(-1.2) scaleY(1.2); 
         }
-
         #character-img:hover {
             transform: scaleX(-1.25) scaleY(1.25); 
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
         }
-
         #chat-main-panel {
             flex: 1;
             display: flex;
@@ -189,7 +167,6 @@
             overflow: hidden;
             box-sizing: border-box;
         }
-
         #chat-window {
             flex: 1;
             overflow-y: auto;
@@ -200,7 +177,6 @@
             width: 100%;
             box-sizing: border-box;
         }
-
         .message {
             max-width: 85%;
             line-height: 1.6;
@@ -208,18 +184,15 @@
             word-break: break-all;
             white-space: pre-wrap;
         }
-
         .bot-msg {
             align-self: flex-start;
             display: flex;
             gap: 1rem;
             align-items: flex-start;
         }
-
         .bot-text {
             flex: 1;
         }
-
         .avatar {
             width: 42px;
             height: 42px;
@@ -230,7 +203,6 @@
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
             flex-shrink: 0;
         }
-
         .avatar-img {
             width: 140%;
             height: auto;
@@ -239,20 +211,17 @@
             top: -5%;
             transform: scaleX(-1); 
         }
-
         .user-msg {
             align-self: flex-end;
             background: var(--user-bg);
             border-color: var(--user-border);
         }
-
         .suggestion-box {
             margin-top: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
         }
-
         .suggestion-btn {
             background: rgba(50, 50, 50, 0.6);
             border: 1px solid var(--box-border);
@@ -267,30 +236,25 @@
             width: 100%;
             white-space: normal;
         }
-
         .suggestion-btn:hover {
             background: rgba(120, 120, 120, 0.3);
             border-color: var(--corner-color);
         }
-
         #input-area {
             padding: 1.5rem 0 0.5rem 0;
             margin-bottom: 0.5rem;
         }
-
         .input-container {
             width: 100%;
             display: flex;
             gap: 1rem;
             align-items: stretch;
         }
-
         .input-wrapper {
             flex: 1;
             display: flex;
             padding: 0;
         }
-
         input {
             flex: 1;
             background: transparent;
@@ -300,7 +264,6 @@
             outline: none;
             font-size: 1rem;
         }
-
         .btn {
             padding: 0.8rem 1.5rem;
             cursor: pointer;
@@ -312,13 +275,11 @@
             letter-spacing: 1px;
             border-radius: 6px;
         }
-
         .btn:hover {
             background: rgba(120, 120, 120, 0.4);
             color: var(--text-main);
             border-color: var(--corner-color);
         }
-
         @media (max-width: 1000px) {
             #main-content-container {
                 position: relative;
@@ -340,46 +301,35 @@
                 width: 100%;
             }
         }
-
         ::-webkit-scrollbar {
             width: 8px;
         }
-
         ::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
         }
-
         ::-webkit-scrollbar-thumb {
             background: var(--box-border);
             border-radius: 4px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
             background: var(--corner-color);
-        }
-
-        
+        }        
         @keyframes pulse {
             0% {
                 opacity: 0.5;
             }
-
             50% {
                 opacity: 1;
             }
-
             100% {
                 opacity: 0.5;
             }
         }
-
         #typing-indicator {
             animation: pulse 1.5s infinite ease-in-out;
-            color: var(--accent);
-            
+            color: var(--accent);            
             font-weight: bold;
         }
-
         #loading-overlay {
             width: 100%;
             height: 42px;
@@ -392,10 +342,8 @@
             align-items: center;
             gap: 12px;
             transition: opacity 0.5s, height 0.5s;
-            flex-shrink: 0;
-            
+            flex-shrink: 0;            
         }
-
         .loader {
             width: 16px;
             height: 16px;
@@ -406,23 +354,19 @@
             box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
-
         @keyframes rotation {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
-
         #loading-text {
             color: var(--accent);
             font-size: 0.85rem;
             letter-spacing: 1px;
         }
-
         #fade-overlay {
             position: absolute;
             top: 0;
@@ -434,20 +378,16 @@
             pointer-events: none;
             opacity: 1;
             transition: opacity 0.5s ease;
-        }
-
-        
+        }        
         #character-img {
             opacity: 0;
             transition: opacity 0.15s ease;
         }
-
         .avatar-img {
             opacity: 0; 
         }
     </style>
 </head>
-
 <body>
     <canvas id="unity-canvas"></canvas>
     <div id="web-ui-layer">
@@ -461,8 +401,7 @@
                 <span>智能知識助手系統</span>
             </div>
         </div>
-        <div id="main-content-container">
-            
+        <div id="main-content-container">            
             <div id="chat-main-panel">
                 <div id="chat-window">
                     <div class="message bot-msg cyber-box">
@@ -479,10 +418,7 @@
                         <button id="send-btn" class="btn" onclick="performSend()" disabled>傳送</button>
                     </div>
                 </div>
-            </div>
-
-            
-            
+            </div>            
             <div id="character-panel">
                 <div class="character-wrapper">
                     <img src="sherlock.png" alt="Sherlock Holmes" id="character-img" onload="removeCheckerboard(this)">
@@ -490,51 +426,37 @@
             </div>
         </div>
     </div>
-
     <script>
-        let cachedTransparentSherlock = null; 
-
+        let cachedTransparentSherlock = null;
         function removeCheckerboard(img) {
-            if (!img) return;
-
-            
+            if (!img) return;            
             if (img.dataset.transparentized === 'true') {
                 img.style.opacity = '1';
                 return;
-            }
-
-            
+            }            
             if (cachedTransparentSherlock && img.src !== cachedTransparentSherlock) {
                 img.dataset.transparentized = 'true';
                 img.src = cachedTransparentSherlock;
                 img.style.opacity = '1';
                 return;
-            }
-            
-            
+            }            
             if (!img.complete || img.naturalWidth === 0) {
                 img.onload = () => removeCheckerboard(img);
                 return;
             }
-
             img.dataset.transparentized = 'true';
-
             const canvas = document.createElement('canvas');
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
-
             try {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
                 const width = canvas.width;
                 const height = canvas.height;
-
                 const visited = new Uint8Array(width * height);
-                const queue = [];
-
-                
+                const queue = [];                
                 for (let x = 0; x < width; x++) {
                     queue.push(x, 0);
                     visited[x] = 1;
@@ -546,41 +468,30 @@
                     visited[y * width] = 1;
                     queue.push(width - 1, y);
                     visited[width - 1 + y * width] = 1;
-                }
-
-                
+                }                
                 function isBackground(r, g, b, a) {
-                    if (a < 10) return true;
-                    
+                    if (a < 10) return true;                    
                     const maxVal = Math.max(r, g, b);
                     const minVal = Math.min(r, g, b);
-                    const diff = maxVal - minVal;
-
-                    
-                    
-                    if (diff < 15) {
-                        
+                    const diff = maxVal - minVal;                    
+                    if (diff < 15) {                        
                         if (maxVal > 45) {
                             return true;
                         }
                     }
                     return false;
                 }
-
                 let head = 0;
                 while (head < queue.length) {
                     const x = queue[head++];
                     const y = queue[head++];
                     const idx = (y * width + x) * 4;
-
                     const r = data[idx];
                     const g = data[idx + 1];
                     const b = data[idx + 2];
                     const a = data[idx + 3];
-
                     if (isBackground(r, g, b, a)) {
-                        data[idx + 3] = 0; 
-
+                        data[idx + 3] = 0;
                         const neighbors = [
                             [x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]
                         ];
@@ -594,9 +505,7 @@
                             }
                         }
                     }
-                }
-
-                
+                }                
                 const eraseWidth = Math.ceil(Math.max(50, width * 0.10));
                 const eraseHeight = Math.ceil(Math.max(50, height * 0.10));
                 for (let y = height - eraseHeight; y < height; y++) {
@@ -605,7 +514,6 @@
                         data[idx + 3] = 0; 
                     }
                 }
-
                 ctx.putImageData(imgData, 0, 0);
                 const dataUrl = canvas.toDataURL('image/png');
                 cachedTransparentSherlock = dataUrl; 
@@ -616,17 +524,13 @@
                 img.style.opacity = '1'; 
             }
         }
-
         function applyTheme() {
             const urlParams = new URLSearchParams(window.location.search);
             const theme = urlParams.get('theme');
             if (theme) document.documentElement.setAttribute('data-theme', theme);
         }
-        applyTheme();
-
-        
+        applyTheme();        
         enableUI(true);
-
         var unityInstance = null;
         var canvas = document.querySelector("#unity-canvas");
         var config = {
@@ -638,35 +542,25 @@
             productName: "AgentKnowledgeTest",
             productVersion: "1.0",
         };
-
         var script = document.createElement("script");
         script.src = "Build/knowledge-agent-api.loader.js";
         script.onload = () => {
             const loadingText = document.getElementById('loading-text');
             const overlay = document.getElementById('loading-overlay');
             const fadeOverlay = document.getElementById('fade-overlay');
-
             let actualProgress = 0;
             let simulatedProgress = 0;
             let animationFinished = false;
-
             function updateProgress(p) {
                 if (animationFinished) return;
-                const displayProgress = Math.min(p, 1);
-
-                
-                loadingText.innerText = `3D 引擎載入中... ${Math.round(displayProgress * 100)}% (已啟用極速 API 模式，您可以直接開始對話)`;
-
-                
+                const displayProgress = Math.min(p, 1);                
+                loadingText.innerText = `3D 引擎載入中... ${Math.round(displayProgress * 100)}% (已啟用極速 API 模式，您可以直接開始對話)`;                
                 if (fadeOverlay) {
                     fadeOverlay.style.opacity = (1 - displayProgress).toString();
-                }
-
-                
+                }                
                 if (displayProgress >= 1) {
                     animationFinished = true;
                     clearInterval(progressInterval);
-
                     setTimeout(() => {
                         if (overlay) {
                             overlay.style.opacity = '0';
@@ -679,35 +573,29 @@
                         }
                     }, 200);
                 }
-            }
-
-            
+            }            
             const intervalMs = 30;
             const step = intervalMs / 3000;
             const progressInterval = setInterval(() => {
                 simulatedProgress += step;
                 updateProgress(Math.max(simulatedProgress, actualProgress));
             }, intervalMs);
-
             createUnityInstance(canvas, config, (progress) => {
                 actualProgress = progress;
                 updateProgress(Math.max(simulatedProgress, actualProgress));
             }).then((instance) => {
                 unityInstance = instance;
-                instance.SendMessage('_Managers', 'SetCaptureAllKeyboardInput', 0);
-                
+                instance.SendMessage('_Managers', 'SetCaptureAllKeyboardInput', 0);                
                 actualProgress = 1;
                 updateProgress(1);
             }).catch((err) => {
                 console.error("Unity 引擎載入失敗，維持 API 模式運作:", err);
-                loadingText.innerText = "3D 引擎載入失敗，系統已自動維持極速 API 模式運作！";
-                
+                loadingText.innerText = "3D 引擎載入失敗，系統已自動維持極速 API 模式運作！";                
                 actualProgress = 1;
                 updateProgress(1);
             });
         };
         document.body.appendChild(script);
-
         function enableUI(enabled) {
             document.getElementById('userInput').disabled = !enabled;
             document.getElementById('send-btn').disabled = !enabled;
@@ -716,23 +604,18 @@
             document.getElementById('s-btn-2').disabled = !enabled;
             if (enabled) document.getElementById('userInput').placeholder = "請輸入您的問題...";
         }
-
         function performSend() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
             if (!text) return;
-
             appendMsg('user', text);
             input.value = '';
             showTyping(true);
-
-            if (unityInstance) {
-                
+            if (unityInstance) {                
                 setTimeout(() => {
                     unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
                 }, 50);
-            } else {
-                
+            } else {                
                 fetch('/api/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -753,20 +636,15 @@
                     });
             }
         }
-
         document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') performSend(); });
-
         function askSuggestion(text) {
             appendMsg('user', text);
             showTyping(true);
-
-            if (unityInstance) {
-                
+            if (unityInstance) {                
                 setTimeout(() => {
                     unityInstance.SendMessage('_Managers', 'GetMessageFromHTML', text);
                 }, 50);
-            } else {
-                
+            } else {                
                 fetch('/api/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -787,20 +665,17 @@
                     });
             }
         }
-
         function clearConversation() {
             if (confirm("確定要清空嗎？")) {
                 if (unityInstance) unityInstance.SendMessage('_Managers', 'ClearChat');
                 location.reload();
             }
         }
-
         function appendMsg(role, text) {
             if (text === "UNITY_READY") return;
             const win = document.getElementById('chat-window');
             const div = document.createElement('div');
-            div.className = `message ${role}-msg cyber-box`;
-            
+            div.className = `message ${role}-msg cyber-box`;            
             if (role === 'bot') {
                 const avatar = document.createElement('div');
                 avatar.className = 'avatar';
@@ -816,26 +691,21 @@
                 div.appendChild(textDiv);
             } else {
                 div.innerText = text;
-            }
-            
+            }            
             win.appendChild(div);
             win.scrollTop = win.scrollHeight;
         }
-
         let typingTimer = null;
         let dotCount = 0;
         let dotTimer = null;
-
         function showTyping(isTyping) {
             const win = document.getElementById('chat-window');
             let typingDiv = document.getElementById('typing-indicator');
-
             if (isTyping) {
                 if (!typingDiv) {
                     typingDiv = document.createElement('div');
                     typingDiv.id = 'typing-indicator';
-                    typingDiv.className = 'message bot-msg cyber-box';
-                    
+                    typingDiv.className = 'message bot-msg cyber-box';                    
                     const avatar = document.createElement('div');
                     avatar.className = 'avatar';
                     const avatarImg = document.createElement('img');
@@ -845,55 +715,43 @@
                     avatar.appendChild(avatarImg);
                     const textDiv = document.createElement('div');
                     textDiv.className = 'bot-text';
-                    textDiv.id = 'typing-text';
-                    
+                    textDiv.id = 'typing-text';                    
                     typingDiv.appendChild(avatar);
                     typingDiv.appendChild(textDiv);
                     win.appendChild(typingDiv);
                 }
-
                 const textDiv = document.getElementById('typing-text');
                 textDiv.innerText = '機器人正在思考...';
                 win.appendChild(typingDiv);
-                typingDiv.style.display = 'flex';
-
-                
+                typingDiv.style.display = 'flex';                
                 if (dotTimer) clearInterval(dotTimer);
                 dotCount = 0;
                 dotTimer = setInterval(() => {
                     dotCount = (dotCount + 1) % 4;
                     textDiv.innerText = '機器人正在思考' + '.'.repeat(dotCount);
                 }, 500);
-
-                if (typingTimer) clearTimeout(typingTimer);
-
-                
+                if (typingTimer) clearTimeout(typingTimer);                
                 typingTimer = setTimeout(() => {
                     if (typingDiv.style.display === 'flex') {
                         alert("偵測到回應時間較長，系統可能正在排隊或網路不穩，請再耐心等候幾秒或重新整理。");
                     }
                 }, 15000);
-
             } else {
                 if (typingTimer) clearTimeout(typingTimer);
                 if (dotTimer) clearInterval(dotTimer);
                 if (typingDiv) typingDiv.style.display = 'none';
             }
-            win.scrollTop = win.scrollHeight;
-            
+            win.scrollTop = win.scrollHeight;            
             setTimeout(() => { win.scrollTop = win.scrollHeight; }, 50);
         }
-
         window.dispatchAnswerToHTML = function (answer) {
             showTyping(false);
             appendMsg('bot', answer);
         };
-
         window.setTypingStatus = function (isTyping) {
             document.getElementById('send-btn').disabled = (isTyping === 1);
             showTyping(isTyping === 1);
         };
     </script>
 </body>
-
 </html>
